@@ -48,15 +48,13 @@ def is_greeting(text):
 
 def build_context_message(user_id, user_msg, max_turns=3):
     """
-    Concatenate up to the last `max_turns` exchanges from the session history,
+    Concatenate up to the last `max_turns` user messages from the session history,
     then append the current user message.
     """
     history = session_histories.get(user_id, [])
     context = []
-    # Only take up to the last N exchanges
     for turn in history[-max_turns:]:
         context.append(f"User: {turn['user']}")
-        context.append(f"Bot: {turn['bot']}")
     context.append(f"User: {user_msg}")
     return " ".join(context)
 
@@ -66,6 +64,9 @@ async def chat(request: Request):
     user_id = req_json.get("session_id")
     user_msg = req_json.get("message", "")
     consider_history = req_json.get("consider_history", True)
+
+    print("Received message:", user_msg, "from session:", user_id)
+    print("Current history:", session_histories.get(user_id, []))
 
     # Smart greeting handling
     if is_greeting(user_msg):

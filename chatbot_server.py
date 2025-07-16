@@ -25,7 +25,7 @@ question_embeddings = model.encode(questions, convert_to_tensor=True)
 session_histories = {}
 
 GREETING_MESSAGE = (
-    "Hello! I am charlie. Official chatbot of The Open University of Sri Lanka. How may I assist you?"
+    "Hello! I am Charlie. I am the official chatbot of The Open University of Sri Lanka. How may I assist you?"
 )
 FALLBACK_MESSAGE = (
     "Sorry! I don't have any idea about what you have asked. Can you rephrase and ask again, or contact the HelpDesk?"

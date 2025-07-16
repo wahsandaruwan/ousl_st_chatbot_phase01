@@ -203,7 +203,7 @@ let greeted = false;
 function greetIfNeeded() {
     if (!greeted) {
         addMessage(
-            "Hello! I am charlie. Official chatbot of The Open University of Sri Lanka. How may I assist you?",
+            "Hello! I am Charlie. I am the official chatbot of The Open University of Sri Lanka. How may I assist you?",
             'bot'
         );
         greeted = true;

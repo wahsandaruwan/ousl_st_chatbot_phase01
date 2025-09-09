@@ -1,5 +1,6 @@
 import json
 import re
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -7,18 +8,33 @@ from sentence_transformers import SentenceTransformer, util
 
 app = FastAPI()
 
-with open("qa_dataset.json", "r") as f:
-    data = json.load(f)
+# --- Load all dataset files ---
+DATASET_DIR = "datasets"
+dataset_files = [
+    os.path.join(DATASET_DIR, fname)
+    for fname in os.listdir(DATASET_DIR)
+    if fname.endswith(".json")
+]
 
 questions = []
 answers = []
 intents = []
-for item in data:
-    for q in item["questions"]:
-        questions.append(q)
-        answers.append(item["answer"])
-        intents.append(item["intent"])
+tags_list = []
+audience_list = []
 
+for file_path in dataset_files:
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    for item in data:
+        intents.append(item.get("intent", "unknown"))
+        answers.append(item.get("answer", ""))
+        tags_list.append(item.get("tags", []))
+        audience_list.append(item.get("audience", []))
+        # For each question in this item, add to the lists
+        for q in item.get("questions", []):
+            questions.append(q)
+
+# --- Sentence Embedding Model ---
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 question_embeddings = model.encode(questions, convert_to_tensor=True)
 
@@ -72,6 +88,8 @@ async def chat(request: Request):
     if is_greeting(user_msg):
         bot_reply = GREETING_MESSAGE
         intent = "greeting"
+        tags = []
+        audience = []
     else:
         # Build context-aware message only if consider_history is True
         if consider_history:
@@ -87,15 +105,25 @@ async def chat(request: Request):
         if best_score < 0.60:
             bot_reply = FALLBACK_MESSAGE
             intent = "fallback"
+            tags = []
+            audience = []
         else:
             bot_reply = answers[idx]
             intent = intents[idx]
+            tags = tags_list[idx] if idx < len(tags_list) else []
+            audience = audience_list[idx] if idx < len(audience_list) else []
 
     # Memorize conversation
     if user_id not in session_histories:
         session_histories[user_id] = []
     session_histories[user_id].append({"user": user_msg, "bot": bot_reply})
 
-    return JSONResponse({"answer": bot_reply, "intent": intent, "history": session_histories[user_id]})
+    return JSONResponse({
+        "answer": bot_reply,
+        "intent": intent,
+        "tags": tags,
+        "audience": audience,
+        "history": session_histories[user_id]
+    })
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

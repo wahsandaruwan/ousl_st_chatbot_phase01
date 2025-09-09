@@ -2,11 +2,21 @@ import json
 import re
 import os
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from sentence_transformers import SentenceTransformer, util
 
 app = FastAPI()
+
+# --- CORS for embedding ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust to restrict origins if needed
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Load all dataset files from datasets/ folder ---
 DATASET_DIR = "datasets"
@@ -136,4 +146,18 @@ async def chat(request: Request):
         "history": session_histories[user_id]
     })
 
+# --- Embeddable Chat Widget Endpoint ---
+@app.get("/widget")
+async def widget_page():
+    widget_path = os.path.join("static", "widget.html")
+    with open(widget_path, "r", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+@app.get("/embed-chat.js")
+async def serve_embed_js():
+    # Serve the embeddable JS file (update the path if your static dir is elsewhere)
+    js_path = os.path.join("static", "embed-chat.js")
+    return FileResponse(js_path, media_type="application/javascript")
+
+# --- Serve static files ---
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

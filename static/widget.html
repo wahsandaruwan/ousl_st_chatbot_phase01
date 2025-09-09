@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>OUSL Chat Widget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- FontAwesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <!-- Your main chatbox styles -->
+    <link rel="stylesheet" href="/style.css" />
+    <style>
+      /* Hide scrollbars for iframe embedding */
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        background: transparent;
+      }
+      /* Optional: Responsive adjustments for iframe */
+      @media (max-width: 500px) {
+        .chat-root { width: 99vw !important; min-width: 0 !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating Button for Chat Widget -->
+    <button id="chat-fab" class="chat-fab" title="Chat with Charlie">
+      <i class="fas fa-comments"></i>
+    </button>
+    <!-- Chat Widget Root -->
+    <div id="chat-root" class="chat-root widget-hidden">
+      <div class="chat-header">
+        <div class="header-left">
+            <i class="fas fa-robot"></i>
+            <span>Charlie - OUSL Chatbot</span>
+        </div>
+        <div class="header-right">
+          <button id="fullscreen-toggle" class="fullscreen-toggle" title="Toggle Fullscreen">
+            <i class="fas fa-expand"></i>
+          </button>
+          <button id="close-widget-btn" class="close-widget-btn" title="Close Chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="history-toggle">
+        <label>
+          <input type="checkbox" id="historyToggle" />
+          <span class="slider"></span>
+          <span class="toggle-label"><i class="fas fa-history"></i> Consider chat history</span>
+        </label>
+      </div>
+      <div id="chatbox"></div>
+      <div class="chat-input-area">
+        <textarea
+          id="userInput"
+          placeholder="What do you want to know?"
+          autocomplete="off"
+          rows="1"
+        ></textarea>
+        <button id="sendBtn" title="Send">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Main chat logic -->
+    <script src="/chat.js"></script>
+  </body>
+</html>

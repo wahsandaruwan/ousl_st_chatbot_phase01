@@ -8,8 +8,11 @@ from sentence_transformers import SentenceTransformer, util
 
 app = FastAPI()
 
-# --- Load all dataset files ---
+# --- Load all dataset files from datasets/ folder ---
 DATASET_DIR = "datasets"
+if not os.path.exists(DATASET_DIR):
+    raise RuntimeError(f"Dataset directory '{DATASET_DIR}' not found. Please create it and add your .json files.")
+
 dataset_files = [
     os.path.join(DATASET_DIR, fname)
     for fname in os.listdir(DATASET_DIR)
@@ -22,17 +25,24 @@ intents = []
 tags_list = []
 audience_list = []
 
+# For each question, add its answer, intent, tags, audience to parallel lists
 for file_path in dataset_files:
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     for item in data:
-        intents.append(item.get("intent", "unknown"))
-        answers.append(item.get("answer", ""))
-        tags_list.append(item.get("tags", []))
-        audience_list.append(item.get("audience", []))
-        # For each question in this item, add to the lists
+        answer = item.get("answer", "")
+        intent = item.get("intent", "unknown")
+        tags = item.get("tags", [])
+        audience = item.get("audience", [])
         for q in item.get("questions", []):
             questions.append(q)
+            answers.append(answer)
+            intents.append(intent)
+            tags_list.append(tags)
+            audience_list.append(audience)
+
+if not questions:
+    raise RuntimeError("No questions loaded. Please check your dataset files in the 'datasets/' folder.")
 
 # --- Sentence Embedding Model ---
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')

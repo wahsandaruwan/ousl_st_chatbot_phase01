@@ -26,8 +26,8 @@ your_project/
 │   ├── chat.js
 │   └── styles.css
 └── datasets/                   # All Q&A datasets (JSON files)
-    ├── qa_dataset.json
-    ├── another_dataset.json
+    ├── dataset_cat01.json
+    ├── dataset_cat02.json
     └── more_file.json
 ```
 
